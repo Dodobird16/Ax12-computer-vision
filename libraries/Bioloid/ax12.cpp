@@ -218,7 +218,7 @@ int ax12GetRegister(int id, int regstart, int length){
         ax12Error = ax_rx_buffer[4];
         if(length == 1)
             return ax_rx_buffer[5];
-        else {
+    }else{
             return ax_rx_buffer[5] + (ax_rx_buffer[6]<<8);
     }else{
         //If we receive invalid data, print it.
