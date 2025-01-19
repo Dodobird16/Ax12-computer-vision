@@ -190,15 +190,8 @@ void ax12Init(long baud){
 /** Read register value(s) */
 int ax12GetRegister(int id, int regstart, int length){  
     setTX(id);
-  
     // 0xFF 0xFF ID LENGTH INSTRUCTION PARAM... CHECKSUM    
     int checksum = ~((id + 6 + regstart + length)%256);
-
-    //print the packet being sent
-    printf("Sending packet: 0xFF 0XFF 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      id, 4, AX_READ_DATA, regstart, length, checksum);
-  
-    //send the packet
     ax12writeB(0xFF);
     ax12writeB(0xFF);
     ax12writeB(id);
@@ -206,31 +199,16 @@ int ax12GetRegister(int id, int regstart, int length){
     ax12writeB(AX_READ_DATA);
     ax12writeB(regstart);
     ax12writeB(length);
-    ax12writeB(checksum); 
-
-    //switch to receive
+    ax12writeB(checksum);  
     setRX(id);    
-
-    //try to read response
-    
-    
     if(ax12ReadPacket(length + 6) > 0){
         ax12Error = ax_rx_buffer[4];
         if(length == 1)
             return ax_rx_buffer[5];
-    }else{
+        else
             return ax_rx_buffer[5] + (ax_rx_buffer[6]<<8);
     }else{
-        //If we receive invalid data, print it.
-        printf("Error: Failed to read response. Received data: ");
-        if (length == 0)
-          printf("No data received.\n");
-    }else{
-        for(int i = 0; i  < ax12ReadPacket(length+6); i++){
-          printf("0x%02X ", ax_rx_buffer[i]);
-        }
-        printf("\n");
-        
+        return -1;
     }
 }
 
@@ -270,4 +248,3 @@ void ax12SetRegister2(int id, int regstart, int data){
 
 // general write?
 // general sync write?
-
